@@ -12,7 +12,7 @@ A comprehensive web-based platform for fine-tuning Large Language Models (LLMs) 
 
 ## 🎯 Overview
 
-AI Model Training WebUI is a powerful, user-friendly platform designed for fine-tuning state-of-the-art language models on your local hardware. It provides a modern web interface for managing the entire training pipeline, from dataset preparation to model deployment, with real-time monitoring and optimization features.
+A scalable, self-hosted Web UI for local LLM fine-tuning. Perfect for experimenting on low-VRAM consumer GPUs with QLoRA, yet powerful enough to handle larger models on high-end hardware. Features real-time monitoring. Powered by PyTorch & Transformers. 
 
 ### Key Benefits
 
