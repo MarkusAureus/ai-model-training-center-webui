@@ -91,13 +91,12 @@ A scalable, self-hosted Web UI for local LLM fine-tuning. Perfect for experiment
 ## 📁 Project Structure
 
 ```
-ai-training-webui/
+ai-model-training-center-webui/
 │
 ├── training_server.py      # Main FastAPI server application
 ├── requirements.txt        # Python dependencies
 ├── README.md              # This file
-├── LICENSE                # MIT license
-├── .gitignore            # Git ignore file
+├── LICENSE                # MIT license           
 │
 ├── static/               # Frontend files
 │   └── index.html       # Web UI (single-page application)
@@ -107,26 +106,19 @@ ai-training-webui/
 │   └── ...
 │
 ├── models/              # Model storage (auto-created)
-│   └── finetuned/      # Trained models
-│       ├── model-1/    # Individual model directories
-│       └── logs/       # TensorBoard logs
-│
-├── scripts/             # Utility scripts
-│   ├── convert_dataset.py  # Dataset conversion utilities
-│   └── benchmark.py        # Model benchmarking
-│
-└── docs/                # Additional documentation
-    ├── API.md          # API reference
-    └── TRAINING.md     # Training guide
+    └── finetuned/      # Trained models
+        ├── model-1/    # Individual model directories
+        └── logs/       # TensorBoard logs
 ```
+
 
 ## 🛠️ Installation
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ai-training-webui.git
-cd ai-training-webui
+git clone https://github.com/MarkusAureus/ai-model-training-center-webui.git
+cd ai-model-training-center-webui
 ```
 
 ### 2. Create Virtual Environment
