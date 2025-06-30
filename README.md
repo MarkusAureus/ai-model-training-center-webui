@@ -6,19 +6,6 @@ A comprehensive web-based platform for fine-tuning Large Language Models (LLMs) 
 ![](screenshot_1.png)
 ![](screenshot_2.png)
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [System Requirements](#system-requirements)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Documentation](#api-documentation)
-- [Configuration](#configuration)
-- [Dataset Format](#dataset-format)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
 
 
 
