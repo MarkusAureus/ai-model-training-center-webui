@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Training Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(123, 47, 247, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.8)); }
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(123, 47, 247, 0.3);
+            border-color: rgba(123, 47, 247, 0.5);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d4ff, #7b2ff7, #ff006e);
+            border-radius: 15px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+            animation: rotate 3s linear infinite;
+        }
+
+        .card:hover::before {
+            opacity: 0.3;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .card h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-ready { background: #00ff00; }
+        .status-training { background: #ffaa00; }
+        .status-error { background: #ff0044; }
+
+        @keyframes pulse {
+            0% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; box-shadow: 0 0 0 10px transparent; }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0b0;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #00d4ff, #7b2ff7);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(123, 47, 247, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.3), 
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #00d4ff;
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #00d4ff;
+        }
+
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #00d4ff;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab.active::after {
+            transform: scaleX(1);
+        }
+
+        .log-viewer {
+            background: #0a0a0a;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .log-time { color: #666; }
+        .log-info { color: #00d4ff; }
+        .log-success { color: #00ff00; }
+        .log-warning { color: #ffaa00; }
+        .log-error { color: #ff0044; }
+
+        .gpu-monitor {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .gpu-icon {
+            font-size: 2em;
+        }
+
+        .gpu-stats {
+            flex: 1;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00d4ff, #7b2ff7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(123, 47, 247, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Model Training Center</h1>
+            <p>Local Model Fine-tuning Platform</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z"/>
+                    </svg>
+                    Model Configuration
+                    <span class="status-indicator status-ready"></span>
+                </h2>
+                
+                <div class="input-group">
+                    <label>Base Model</label>
+                    <select id="baseModel">
+                        <option value="tinyllama">TinyLlama 1.1B (Smallest)</option>
+                        <option value="gemma:2b">Gemma 2B (General)</option>
+                        <option value="phi-2">Phi-2 2.7B (General)</option>
+                        <option value="stable-code-3b">Stable Code 3B (Code)</option>
+                        <option value="pythia-1.4b">Pythia 1.4B (Research)</option>
+                        <option value="starcoder2:3b">StarCoder2 3B (Code)</option>
+                        <option value="codet5p-770m">CodeT5+ 770M (Code)</option>
+                        <option value="gpt2-medium">GPT-2 Medium (355M)</option>
+                        <option value="replit-code-v1-3b">Replit Code 3B (Code)</option>
+                        <option value="open_llama_3b_v2">OpenLlama 3B v2 (General)</option>
+                        <option value="falcon-1b">Falcon 1B (General)</option>
+                        <option value="tinydolphin">TinyDolphin 1.1B (Finetuned)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Training Method</label>
+                    <select id="trainingMethod">
+                        <option value="lora">LoRA (Recommended)</option>
+                        <option value="qlora">QLoRA (Max Memory Saving)</option>
+                        <option value="full">Full Fine-tuning (For Experts)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Dataset Path</label>
+                    <input type="text" id="datasetPath" placeholder="/path/to/dataset.jsonl">
+                </div>
+
+                <button class="btn" onclick="validateConfig()">Validate Setup</button>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2L2 9V22H22V9L12 2M12 4.5L19 10V20H5V10L12 4.5Z"/>
+                    </svg>
+                    Training Parameters
+                </h2>
+
+                <div class="metrics-grid">
+                    <div class="input-group">
+                        <label>Batch Size</label>
+                        <input type="number" id="batchSize" value="1" min="1" max="8">
+                    </div>
+                    <div class="input-group">
+                        <label>Learning Rate</label>
+                        <input type="number" id="learningRate" value="0.00002" step="0.000001">
+                    </div>
+                    <div class="input-group">
+                        <label>Epochs</label>
+                        <input type="number" id="epochs" value="1" min="1" max="10">
+                    </div>
+                    <div class="input-group">
+                        <label>Max Length</label>
+                        <input type="number" id="maxLength" value="512" min="128" max="2048">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="fp16" checked> Use FP16 (Mixed Precision)
+                    </label>
+                </div>
+
+                <button class="btn" onclick="startTraining()">Start Training</button>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M2 5V19H22V5H2M20 17H4V7H20V17M6 9V11H8V9H6M10 9V11H12V9H10M14 9V11H16V9H14Z"/>
+                    </svg>
+                    Hardware Monitor
+                </h2>
+
+                <div class="gpu-monitor">
+                    <div class="gpu-icon">🎮</div>
+                    <div class="gpu-stats">
+                        <div class="stat-row">
+                            <span>GPU:</span>
+                            <span id="gpuName">N/A</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>VRAM:</span>
+                            <span id="vramUsage">0.0 / 0.0 GB</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Utilization:</span>
+                            <span id="gpuUtil">0%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Temperature:</span>
+                            <span id="gpuTemp">0°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="gpuProgress" style="width: 0%">
+                        <div class="progress-text">GPU Load</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M13 2.03V12L22 12.03L13 2.03M11 2V12H2V22H22V14H11V2Z"/>
+                </svg>
+                Training Progress
+                <span class="status-indicator status-ready" id="trainingStatus"></span>
+            </h2>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('metrics')">Metrics</button>
+                <button class="tab" onclick="switchTab('logs')">Logs</button>
+                <button class="tab" onclick="switchTab('config')">Config</button>
+            </div>
+
+            <div id="metricsTab">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="trainingProgress" style="width: 0%">
+                        <div class="progress-text" id="progressText">0%</div>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-value" id="currentEpoch">0</div>
+                        <div class="metric-label">Epoch</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="trainLoss">0.000</div>
+                        <div class="metric-label">Loss</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="learnRate">0</div>
+                        <div class="metric-label">LR</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="timeRemaining">00:00</div>
+                        <div class="metric-label">ETA</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="logsTab" style="display: none;">
+                <div class="log-viewer" id="logViewer">
+                    <div class="log-entry">
+                        <span class="log-time">[00:00:00]</span>
+                        <span class="log-info">Ready to start training...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="configTab" style="display: none;">
+                <pre id="configDisplay" style="background: #0a0a0a; padding: 20px; border-radius: 10px; overflow-x: auto;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-btn" onclick="toggleAdvanced()">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+    </div>
+
+    <script>
+        let ws = null;
+        let trainingActive = false;
+
+        function connectWebSocket() {
+            // -- FIX: Correct WebSocket URL to match FastAPI server --
+            ws = new WebSocket(`ws://${window.location.host}/ws`);
+            
+            ws.onopen = () => {
+                addLog('success', 'Connected to training server.');
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'log') {
+                    addLog(data.level, data.message);
+                } else if (data.type === 'metrics') {
+                    updateMetrics(data);
+                }
+            };
+            
+            ws.onclose = () => {
+                addLog('error', 'Connection lost. Retrying in 5 seconds...');
+                setTimeout(connectWebSocket, 5000);
+            };
+
+            ws.onerror = (error) => {
+                addLog('error', 'WebSocket connection failed.');
+            };
+        }
+
+        function validateConfig() {
+            const model = document.getElementById('baseModel').value;
+            const dataset = document.getElementById('datasetPath').value;
+            
+            if (!dataset) {
+                alert('Please specify dataset path');
+                return;
+            }
+            addLog('info', `Validating setup for ${model}...`);
+        }
+
+        async function startTraining() {
+            if (trainingActive) {
+                if (confirm('Stop current training?')) {
+                    await fetch('/api/stop', { method: 'POST' });
+                    addLog('warning', 'Stopping training...');
+                }
+                return;
+            }
+            
+            const config = {
+                model: document.getElementById('baseModel').value,
+                method: document.getElementById('trainingMethod').value,
+                dataset: document.getElementById('datasetPath').value,
+                batch_size: parseInt(document.getElementById('batchSize').value),
+                learning_rate: parseFloat(document.getElementById('learningRate').value),
+                epochs: parseInt(document.getElementById('epochs').value),
+                max_length: parseInt(document.getElementById('maxLength').value),
+                fp16: document.getElementById('fp16').checked
+            };
+            
+            document.getElementById('configDisplay').textContent = JSON.stringify(config, null, 2);
+            
+            try {
+                const response = await fetch('/api/train', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                if (response.ok) {
+                    trainingActive = true;
+                    document.getElementById('trainingStatus').className = 'status-indicator status-training';
+                    addLog('info', 'Training started successfully.');
+                } else {
+                    const error = await response.json();
+                    addLog('error', `Failed to start training: ${error.detail}`);
+                }
+            } catch (e) {
+                addLog('error', `Failed to connect to server: ${e}`);
+            }
+        }
+        
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                // Update Training status
+                if (data.training && !trainingActive) {
+                    trainingActive = true;
+                    document.getElementById('trainingStatus').className = 'status-indicator status-training';
+                } else if (!data.training && trainingActive) {
+                    trainingActive = false;
+                    document.getElementById('trainingStatus').className = 'status-indicator status-ready';
+                }
+                
+                // Update GPU stats
+                if(data.gpu) {
+                    document.getElementById('gpuName').textContent = data.gpu.name || 'N/A';
+                    document.getElementById('vramUsage').textContent = `${data.gpu.memory_used || 0} / ${data.gpu.memory_total || 0} MB`;
+                    document.getElementById('gpuUtil').textContent = `${(data.gpu.utilization || 0).toFixed(0)}%`;
+                    const gpuUtilWidth = (data.gpu.utilization || 0);
+                    document.getElementById('gpuProgress').style.width = `${gpuUtilWidth}%`;
+                    document.getElementById('gpuTemp').textContent = `${data.gpu.temperature || 0}°C`;
+                }
+
+                // Update progress bar
+                updateProgress(data.progress || 0);
+                
+                // Update metrics if training is active
+                if(data.training) {
+                     updateMetrics({
+                        epoch: data.epoch,
+                        loss: data.loss,
+                        step: data.step,
+                        total_steps: data.total_steps,
+                        learning_rate: data.learning_rate // Assumes backend provides this
+                    });
+                }
+            } catch (error) {
+                // Ignore fetch errors, they are common during server restart
+            }
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('trainingProgress').style.width = percent.toFixed(1) + '%';
+            document.getElementById('progressText').textContent = percent.toFixed(1) + '%';
+        }
+
+        function updateMetrics(data) {
+            if (data.epoch !== undefined) document.getElementById('currentEpoch').textContent = data.epoch.toFixed(1);
+            if (data.loss !== undefined) document.getElementById('trainLoss').textContent = data.loss.toFixed(4);
+            if (data.learning_rate !== undefined) document.getElementById('learnRate').textContent = data.learning_rate.toExponential(1);
+            if (data.step !== undefined && data.total_steps > 0) {
+                const remainingSteps = data.total_steps - data.step;
+                // Simple ETA based on log frequency (assuming logs every few seconds)
+                const remainingSeconds = remainingSteps * 2; // Rough estimate
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = (remainingSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('timeRemaining').textContent = `${minutes}:${seconds}`;
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('metricsTab').style.display = tab === 'metrics' ? 'block' : 'none';
+            document.getElementById('logsTab').style.display = tab === 'logs' ? 'block' : 'none';
+            document.getElementById('configTab').style.display = tab === 'config' ? 'block' : 'none';
+        }
+
+        function addLog(type, message) {
+            const logViewer = document.getElementById('logViewer');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            logViewer.appendChild(entry);
+            logViewer.scrollTop = logViewer.scrollHeight;
+        }
+
+        function toggleAdvanced() {
+            alert('Advanced settings coming soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('info', 'WebUI initialized. Connecting to server...');
+            connectWebSocket();
+            setInterval(fetchStatus, 2000); // Fetch status every 2 seconds
+        });
+    </script>
+</body>
+</html>
